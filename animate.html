@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="./three.js"></script>
+    <script src="./stats.js"></script>
+    <style>
+        html,
+        body,
+        canvas {
+            margin: 0;
+            padding: 0;
+        }
+
+        div#canvas-frame {
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            height: 600px;
+            background-color: #EEEEEE;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- <div id="canvas-frame"></div> -->
+    <script>
+        // 渲染器
+        var renderer;
+        // 监听器
+        var stats;
+        function initThree() {
+            console.log(window.innerHeight)
+            width = window.innerWidth
+            height = window.innerHeight
+            renderer = new THREE.WebGLRenderer({
+                antialias: true
+            });
+            renderer.setSize(width, height);
+            document.getElementsByTagName('body')[0].appendChild(renderer.domElement);
+            renderer.setClearColor(0xFFFFFF, 1.0);
+
+            stats = new Stats();
+            stats.domElement.style.position = 'absolute';
+            stats.domElement.style.left = '0px';
+            stats.domElement.style.top = '0px';
+            document.getElementsByTagName('body')[0].appendChild(stats.domElement);
+        }
+        // 相机配置
+        var camera;
+        function initCamera() {
+            camera = new THREE.PerspectiveCamera(45, width / height, 1, 10000);
+            camera.position.x = 0;
+            camera.position.y = 0;
+            camera.position.z = 300;
+            camera.up.x = 0;
+            camera.up.y = 0;
+            camera.up.z = 1;
+            camera.lookAt(0, 0, 0);
+        }
+        // 创建场景实例
+        var scene;
+        function initScene() {
+            scene = new THREE.Scene();
+        }
+
+
+        // 创建一个柱状体
+        var mesh;
+        function initCube() {
+            // var geometry = new THREE.CylinderGeometry(10, 15, 40); //六面柱 
+            var geometry = new THREE.BoxGeometry(100, 100, 100); //四面体
+            // geometry.colors.push(new THREE.Color('red')) 
+            console.log(geometry)
+            var material = new THREE.MeshBasicMaterial({
+                vertexColors: THREE.FaceColors,
+                wireframe: false,
+                shading: THREE.NoShading
+            });
+
+            // 为每一个面着色
+            for (var i = 0; i < geometry.faces.length; i++) {
+                var hex = Math.random() * 0xffffff;
+                // var hex = new THREE.Color('red');
+                geometry.faces[i].color.setHex(hex);
+            }
+
+            mesh = new THREE.Mesh(geometry, material);
+            // mesh.position = new THREE.Vector3(0, 0, 0);
+            mesh.castShadow = true;
+            scene.add(mesh);
+        }
+
+        // 线形球
+        function initDrawGrid() {
+            // 定义一个几何体
+            var geometry = new THREE.Geometry();
+            geometry.vertices.push(new THREE.Vector3(- 200, 0, 0));
+            geometry.vertices.push(new THREE.Vector3(200, 0, 0));
+            // geometry.vertices.push(new THREE.Vector3(100, 0, 0));
+            var color1 = new THREE.Color('red'), color2 = new THREE.Color('blue');
+            geometry.colors.push(color1, color2);
+
+            for (var i = 0; i <= 200; i++) {
+                var line = new THREE.Line(geometry, new THREE.LineBasicMaterial({ vertexColors: true }));
+                // line.position.x = (i * 20) - 200;
+                line.rotation.y = 360 * Math.random() * Math.PI / 180;
+                line.rotation.z = 360 * Math.random() * Math.PI / 180;
+                scene.add(line);
+            }
+        }
+
+        // 动起来
+        function animate() {
+            var a = 0.01
+            // 改变相机的位置
+            // camera.position.y -= a
+            // camera.position.z -= a
+            // camera.position.x -= a
+
+            // 改变物体的位置
+            // mesh.position.z -= 1;//位移
+            mesh.rotation.x -= 0.01;//旋转
+            mesh.rotation.z -= 0.01;//旋转
+
+            renderer.render(scene, camera);
+            requestAnimationFrame(animate);
+
+            stats.update();
+        }
+
+        function threeStart() {
+            initThree();
+            initCamera();
+            initScene();
+            // initLight();
+            initCube();
+            // initDrawGrid();
+            // renderer.clear();
+            // renderer.render(scene, camera);
+            animate()
+        }
+
+        function test() {
+            var scene = new THREE.Scene();
+
+            var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+            var renderer = new THREE.WebGLRenderer();
+
+            renderer.setSize(window.innerWidth, window.innerHeight);
+
+            document.body.appendChild(renderer.domElement);
+
+            var geometry = new THREE.CubeGeometry(1, 1, 1);
+            // var geometry = new THREE.CylinderGeometry(100, 150, 400);
+            var material = new THREE.MeshBasicMaterial({ color: 'pink' });
+            var cube = new THREE.Mesh(geometry, material);
+            scene.add(cube);
+            camera.position.z = 5;
+            function render() {
+                requestAnimationFrame(render);
+                cube.rotation.x += 0.1;
+                cube.rotation.y += 0.1;
+                renderer.render(scene, camera);
+            }
+            render();
+        }
+
+        window.onload = function () {
+            threeStart()
+            test()
+        }
+    </script>
+
+</body>
+
+</html>
